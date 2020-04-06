@@ -1,0 +1,21 @@
+sudo: required
+services:
+    - docker
+
+before_install:
+    - docker build -t aviral243/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+    - docker run aviral243/react-test npm test -- --coverage
+
+after_success:
+    - docker build -t aviral243/react-client ./client
+    - docker build -t aviral243/express-server ./server
+    - docker build -t aviral243/nginx ./nginx
+    - docker build -t aviral243/node-worker ./worker
+    #Log in to the docker CLI
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+    - docker push aviral243/react-client
+    - docker push aviral243/express-server
+    - docker push aviral243/node-worker
+    - docker push aviral243/nginx 
